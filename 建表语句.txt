@@ -1,0 +1,98 @@
+CREATE TABLE base_scan_task (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '数据库自增ID',
+    task_id VARCHAR(255) NOT NULL UNIQUE COMMENT '任务ID',
+    task_name VARCHAR(255) NOT NULL UNIQUE COMMENT '任务名称',
+    task_type VARCHAR(100) NOT NULL COMMENT '任务类型，如 “端口扫描”、“Web漏洞扫描”、“弱口令扫描”',
+    target VARCHAR(255) NOT NULL COMMENT '扫描目标，可以是IP地址、域名等',
+    status VARCHAR(100) NOT NULL DEFAULT '待执行' COMMENT '任务状态，如 “待执行”、“正在执行”、“已完成”、“已取消”、“失败”',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '任务创建时间',
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '任务最后更新时间',
+    creator_id VARCHAR(100) NOT NULL COMMENT '创建者ID',
+	creator  VARCHAR(100) NOT NULL COMMENT '创建者',
+    description VARCHAR(255) COMMENT '任务描述',
+	retry_count INT DEFAULT 0 COMMENT '任务执行过的次数',
+    priority INT NOT NULL COMMENT '任务优先级,3>2>1',
+	progress INT NOT NULL COMMENT '任务进度'
+) COMMENT='基础扫描任务表';
+
+CREATE TABLE port_scan_task (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '数据库自增ID',
+    task_id VARCHAR(255) NOT NULL UNIQUE COMMENT '基础扫描任务ID，外键',
+    port_list VARCHAR(500) NOT NULL COMMENT '需要扫描的端口列表',
+    is_full_scan BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否进行全端口扫描',
+    scan_method VARCHAR(100) NOT NULL COMMENT '扫描方法，如SYN扫描(半连接扫描),TCP连接(全连接扫描),UDP扫描等',
+	FOREIGN KEY (task_id) REFERENCES base_scan_task(task_id) ON DELETE CASCADE
+) COMMENT='端口扫描任务表';
+
+CREATE TABLE port_scan_result (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '数据库自增ID',
+    task_id VARCHAR(255) NOT NULL COMMENT '端口扫描任务ID，外键',
+	target VARCHAR(255) NOT NULL COMMENT '扫描目标，可以是IP地址、域名等',
+    open_port VARCHAR(100) NOT NULL COMMENT '扫描到的开放端口号',
+    service VARCHAR(255) COMMENT '端口上运行的服务名称',
+    version VARCHAR(100) COMMENT '服务版本',
+    scan_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '扫描结果生成时间',
+    additional_info TEXT COMMENT '额外的扫描信息',
+    FOREIGN KEY (task_id) REFERENCES port_scan_task(task_id) ON DELETE CASCADE
+) COMMENT='端口扫描结果表';
+
+CREATE TABLE weak_password_scan_task (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '数据库自增ID',
+    task_id VARCHAR(255) NOT NULL COMMENT '端口扫描任务ID，外键',
+    service_types VARCHAR(255) NOT NULL COMMENT '爆破服务类型（如 SSH、FTP）',
+    username_file_path VARCHAR(255) COMMENT '用户名字典路径',
+	password_file_path VARCHAR(255) COMMENT '密码字典路径',
+    use_default_dict BOOLEAN NOT NULL DEFAULT TRUE COMMENT '是否使用默认字典',
+    FOREIGN KEY (task_id) REFERENCES base_scan_task(task_id) ON DELETE CASCADE
+) COMMENT='弱口令扫描任务表';
+
+CREATE TABLE weak_password_scan_result (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '数据库自增ID',
+    task_id VARCHAR(255) NOT NULL COMMENT '端口扫描任务ID，外键',
+	target VARCHAR(255) NOT NULL COMMENT '扫描目标，可以是IP地址、域名等',
+	port VARCHAR(100) NOT NULL COMMENT '爆破服务类型对应的开放端口号',
+	service VARCHAR(255) COMMENT '爆破服务类型（如 SSH、FTP）',  
+	username VARCHAR(50) NOT NULL  COMMENT '爆破成功的用户名',
+    password VARCHAR(255) NOT NULL  COMMENT' 爆破成功的密码',
+    scan_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '扫描结果生成时间',
+    additional_info TEXT COMMENT '额外的扫描信息',
+    FOREIGN KEY (task_id) REFERENCES weak_password_scan_task(task_id) ON DELETE CASCADE
+) COMMENT='弱口令扫描结果表';
+
+CREATE TABLE web_vuln_scan_task (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '数据库自增ID',
+    task_id VARCHAR(255) NOT NULL COMMENT '端口扫描任务ID，外键',
+    poc_content VARCHAR(10000)  COMMENT '用户自定义poc',
+    FOREIGN KEY (task_id) REFERENCES base_scan_task(task_id) ON DELETE CASCADE
+) COMMENT='web漏洞扫描任务表';
+
+CREATE TABLE web_vuln_scan_result (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '数据库自增ID',
+    task_id VARCHAR(255) NOT NULL COMMENT '端口扫描任务ID，外键',
+	target VARCHAR(255) NOT NULL COMMENT '扫描目标url',
+	poc_file_path VARCHAR(255) COMMENT '扫描到的漏洞对应的poc文件路径'
+    scan_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '扫描结果生成时间',
+    FOREIGN KEY (task_id) REFERENCES web_vuln_scan_task(task_id) ON DELETE CASCADE
+) COMMENT='web漏洞扫描结果表';
+
+CREATE TABLE user (
+    id INT AUTO_INCREMENT PRIMARY KEY  COMMENT '数据库自增ID',
+	user_id VARCHAR(255) NOT NULL UNIQUE COMMENT '用户ID',
+    username VARCHAR(50) NOT NULL UNIQUE COMMENT '用户名，唯一',
+    password VARCHAR(255) NOT NULL  COMMENT' 密码',
+    create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '用户创建时间'
+)COMMENT='用户信息表';
+CREATE TABLE web_vuln_scan_task (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    task_id VARCHAR(255) NOT NULL UNIQUE,
+    is_deep_scan BOOLEAN NOT NULL,
+    user_agent VARCHAR(255),
+    FOREIGN KEY (task_id) REFERENCES scan_task(task_id)
+);
+CREATE TABLE weak_password_scan_task (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    task_id VARCHAR(255) NOT NULL UNIQUE,
+    use_default_dict BOOLEAN NOT NULL,
+    FOREIGN KEY (task_id) REFERENCES scan_task(task_id)
+);
+
