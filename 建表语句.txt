@@ -82,17 +82,3 @@ CREATE TABLE user (
     password VARCHAR(255) NOT NULL  COMMENT' 密码',
     create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '用户创建时间'
 )COMMENT='用户信息表';
-CREATE TABLE web_vuln_scan_task (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    task_id VARCHAR(255) NOT NULL UNIQUE,
-    is_deep_scan BOOLEAN NOT NULL,
-    user_agent VARCHAR(255),
-    FOREIGN KEY (task_id) REFERENCES scan_task(task_id)
-);
-CREATE TABLE weak_password_scan_task (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    task_id VARCHAR(255) NOT NULL UNIQUE,
-    use_default_dict BOOLEAN NOT NULL,
-    FOREIGN KEY (task_id) REFERENCES scan_task(task_id)
-);
-
