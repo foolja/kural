@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lja.kural.Mapper.PortScanResultMapper">
+
+    <insert id="addPortScanResult">
+        INSERT INTO port_scan_result
+        (task_id, target, open_port, service, version, additional_info, scan_time)
+        VALUES
+        <foreach collection="list" item="item" separator=","> <!-- 假设传入List<PortScanResult> -->
+            (
+            #{item.taskId},
+            #{item.target},
+            #{item.openPort},
+            #{item.service},
+            #{item.version},
+            #{item.additionalInfo},
+            NOW() <!-- 或使用 #{item.scanTime} 来自Java -->
+            )
+        </foreach>
+    </insert>
+    <select id="selectPortScanResult" resultType="com.lja.kural.Bean.PortScanResult">
+        SELECT * FROM port_scan_result WHERE task_id = #{taskId}
+    </select>
+
+</mapper>

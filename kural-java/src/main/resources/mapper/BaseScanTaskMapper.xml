@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lja.kural.Mapper.BaseScanTaskMapper">
+
+    <insert id="addBaseScanTask">
+        INSERT INTO base_scan_task (task_id, task_name, task_type, target, creator_id, creator,description, priority, progress)
+        VALUES (#{taskId}, #{taskName}, #{taskType}, #{target}, #{creatorId}, #{creator},#{description}, #{priority}, 0);
+    </insert>
+    <select id="selectBaseScanTaskList" resultType="com.lja.kural.Bean.BaseScanTask">
+        SELECT id, task_id, task_name, task_type, target, create_time, creator, status, progress FROM base_scan_task
+        WHERE  creator_id = #{creatorId}
+    </select>
+    <select id="selectBaseScanTask" resultType="com.lja.kural.Bean.BaseScanTask">
+        SELECT * FROM base_scan_task WHERE task_id = #{taskId}
+    </select>
+</mapper>

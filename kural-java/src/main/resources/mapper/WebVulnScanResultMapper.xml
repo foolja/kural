@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lja.kural.Mapper.WebVulnScanResultMapper">
+
+    <insert id="addWebVulnScanResult">
+        INSERT INTO web_vuln_scan_result
+        (task_id, target, poc_file_path)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.taskId},
+            #{item.target},
+            #{item.pocFilePath}
+            )
+        </foreach>
+    </insert>
+    <select id="selectWebVulnScanResult" resultType="com.lja.kural.Bean.WebVulnScanResult">
+        SELECT * FROM web_vuln_scan_result WHERE task_id = #{taskId}
+    </select>
+</mapper>

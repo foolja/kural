@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.lja.kural.Mapper.WebVulnScanTaskMapper">
+
+    <insert id="addWebVulnScanTask">
+        INSERT INTO web_vuln_scan_task (task_id, poc_content)
+        VALUES (#{taskId}, #{pocContent})
+    </insert>
+    <select id="selectWebVulnScanTask" resultType="com.lja.kural.Bean.WebVulnScanTask">
+        SELECT
+            b.id,
+            b.task_id,
+            b.task_name,
+            b.task_type,
+            b.target,
+            b.status,
+            b.create_time,
+            b.update_time,
+            b.creator_id,
+            b.creator,
+            b.description,
+            b.priority,
+            b.progress,
+            w.poc_content
+        FROM
+            base_scan_task b
+                INNER JOIN
+            web_vuln_scan_task w
+            ON
+                b.task_id = w.task_id
+        WHERE
+            b.task_id = #{taskId}
+    </select>
+
+</mapper>
